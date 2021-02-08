@@ -2,11 +2,25 @@ from flask import Flask
 from flask_cors import CORS
 from pyrebase import pyrebase
 from pyngrok import ngrok
+from Appchannel import AppchannelCommunicate 
+import cflib
+from cflib.crazyflie import Crazyflie
 
 app = Flask(__name__)
 CORS(app)
 
-activated = False
+cflib.crtp.init_drivers(enable_debug_driver=False)
+print('Scanning interfaces for Crazyflies...')
+available = cflib.crtp.scan_interfaces()
+print('Crazyflies found:')
+if len(available) > 0:
+    comm = AppchannelCommunicate(available[0][0])
+else:
+    print('No Crazyflies found, cannot run example')
+
+
+
+activated = 0
 battery = 100
 
 public_url = ngrok.connect(5000).public_url
@@ -28,7 +42,8 @@ firebase.update({"url": privatize})
 @app.route("/changeState")
 def changeState():
     global activated
-    activated = not activated
+    activated = activated ^ 1
+    comm._sendPacket(b'l')
     return {'result': activated}
 
 
@@ -41,7 +56,8 @@ def getState():
 @app.route("/getBatteryLevel")
 def getBatteryLevel():
     global battery
-    battery -= 1
+    comm._sendPacket(b'b')
+    battery = "{:.2f}".format(comm._getBatteryLevel())
     return {'result': battery}
 
 
