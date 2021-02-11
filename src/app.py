@@ -49,6 +49,7 @@ def scan():
         return 'Found a Crazyflie'
     else:
         print('No Crazyflies found, waiting 3 seconds')
+        comm = None
         return 'No Crazyflies found', 500
 
 
