@@ -1,3 +1,7 @@
 brotli==1.0.9
 Flask==1.1.2
 Flask_Cors==3.0.10
+pyngrok==5.0.1
+Pyrebase==3.0.27
+cflib==0.1.13.1
+

@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
 from pyrebase import pyrebase
-from pyngrok import ngrok
 from Appchannel import AppchannelCommunicate, updateDrones
 from Drone import Drone
 
@@ -11,8 +10,6 @@ droneList = []
 app = Flask(__name__)
 CORS(app)
 
-#Connection to Ngrok tunnel
-public_url = ngrok.connect(5000).public_url
 
 #Initialisation of the database
 config = {
@@ -21,11 +18,7 @@ config = {
     "databaseURL": "https://inf3995-100-default-rtdb.firebaseio.com/",
     "storageBucket": "inf3995-100.appspot.com"
 }
-split_url = public_url.split(":")
-privatize = split_url[0] + "s:" + split_url[1]
-
 firebase = pyrebase.initialize_app(config).database()
-firebase.update({"url": privatize})
 
 
 #Connection to drones
@@ -33,6 +26,7 @@ droneList = updateDrones(droneList)
 
 @app.route("/getStats")
 def getStats():
+    #try:
     for i,d in enumerate(droneList):
         #d.getChannel().sendPacket(b's')
         #d.getChannel().sendPacket(b'v')
@@ -43,6 +37,32 @@ def getStats():
 
     firebase.update({"number": len(droneList)})
     return {'result': True}
-    
+    #except:
+        #print("Error")
+        #return 'Error', 500
+
+@app.route("/takeOff")
+def takeOff():
+    try:
+        for i,d in enumerate(droneList):
+            d.getChannel().sendPacket(b'l')
+        
+        return {'result': True}
+    except:
+        print("Error")
+        return 'Error', 500
+
+
+
+@app.route('/scan')
+def scan():
+    global droneList
+    droneList = updateDrones(droneList)
+    if len(droneList) > 0:
+        return 'Found a Crazyflie'
+    else:
+        return 'No Crazyflies found', 500
+
+
 
 
