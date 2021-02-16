@@ -22,7 +22,7 @@ firebase = pyrebase.initialize_app(config).database()
 
 
 #Connection to drones
-droneList = updateDrones(droneList)
+updateDrones(droneList)
 
 @app.route("/getStats")
 def getStats():
@@ -45,6 +45,18 @@ def getStats():
 def takeOff():
     try:
         for i,d in enumerate(droneList):
+            d.getChannel().sendPacket(b't')
+        
+        return {'result': True}
+    except:
+        print("Error")
+        return 'Error', 500
+
+
+@app.route("/land")
+def land():
+    try:
+        for i,d in enumerate(droneList):
             d.getChannel().sendPacket(b'l')
         
         return {'result': True}
@@ -53,11 +65,10 @@ def takeOff():
         return 'Error', 500
 
 
-
 @app.route('/scan')
 def scan():
     global droneList
-    droneList = updateDrones(droneList)
+    updateDrones(droneList)
     if len(droneList) > 0:
         return 'Found a Crazyflie'
     else:

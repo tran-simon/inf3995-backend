@@ -12,5 +12,8 @@ class Drone:
     def getChannel(self):
         return self.__channel
 
+    def destroy(self):
+        self.__channel._cf.close_link()
+
 
 

@@ -43,6 +43,8 @@ STATE_MISSION = "In mission"
 STATE_CRASHED = "Crashed"
 
 logging.basicConfig(level=logging.ERROR)
+cflib.crtp.init_drivers(enable_debug_driver=False)
+
 
 
 class AppchannelCommunicate:
@@ -103,7 +105,6 @@ class AppchannelCommunicate:
 
 
 def connectToDrone():
-    cflib.crtp.init_drivers(enable_debug_driver=False)
     print('Scanning interfaces for Crazyflies...')
     available = cflib.crtp.scan_interfaces()
     if len(available) > 0:
@@ -116,13 +117,18 @@ def connectToDrone():
 
 def updateDrones(droneList):
     drones = []
-    while(len(drones) == 0):
-        drones = connectToDrone()
+    for i in droneList:
+        i.destroy()
+    del droneList[:]
+    drones = connectToDrone()
 
     for d in drones:
         drone = Drone(d[0], AppchannelCommunicate(d[0]))
-        if (drone not in droneList):
+        if(len(droneList) > 0):
+            for i in droneList:
+                if (drone.getId() != i.getId()):
+                    droneList.append(drone)
+        else:
             droneList.append(drone)
             
-    return droneList
     
