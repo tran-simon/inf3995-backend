@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_APP=src/app.py
+ENV FLASK_APP=src/App.py
 ENV FLASK_ENV=development
 ENV PORT=5000
 
@@ -28,3 +28,4 @@ RUN echo '# Crazyradio (normal operation) \
 
 
 CMD ["flask", "run"]
+

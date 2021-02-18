@@ -26,7 +26,6 @@
 """
 Simple example that connects to the first Crazyflie found, Sends and
 receive appchannel packets
-
 """
 
 import logging
@@ -37,62 +36,99 @@ import struct
 
 import cflib
 from cflib.crazyflie import Crazyflie
+from Drone import Drone
+
+STATE_STANDBY = "Standby"
+STATE_MISSION = "In mission"
+STATE_CRASHED = "Crashed"
 
 logging.basicConfig(level=logging.ERROR)
+cflib.crtp.init_drivers(enable_debug_driver=False)
+
 
 
 class AppchannelCommunicate:
     """Example that connects to a Crazyflie and ramps the motors up/down and
     the disconnects"""
+    __batteryLevel = 0.0
 
     def __init__(self, link_uri):
         """ Initialize and run the example with the specified link_uri """
         
         self._cf = Crazyflie()
 
-        self._cf.connected.add_callback(self._connected)
-        self._cf.disconnected.add_callback(self._disconnected)
-        self._cf.connection_failed.add_callback(self._connection_failed)
-        self._cf.connection_lost.add_callback(self._connection_lost)
+        self._cf.connected.add_callback(self.connected)
+        self._cf.disconnected.add_callback(self.disconnected)
+        self._cf.connection_failed.add_callback(self.connectionFailed)
+        self._cf.connection_lost.add_callback(self.connectionLost)
 
-        self._cf.appchannel.packet_received.add_callback(self._app_packet_received)
+        self._cf.appchannel.packet_received.add_callback(self.appPacketReceived)
 
         self._cf.open_link(link_uri)
 
         print('Connecting to %s' % link_uri)
 
-        self._batteryLevel = 0.0
-
-    def _connected(self, link_uri):
+    def connected(self, link_uri):
         """ This callback is called form the Crazyflie API when a Crazyflie
         has been connected and the TOCs have been downloaded."""
 
 
-    def _connection_failed(self, link_uri, msg):
+    def connectionFailed(self, link_uri, msg):
         """Callback when connection initial connection fails (i.e no Crazyflie
         at the specified address)"""
         print('Connection to %s failed: %s' % (link_uri, msg))
 
-    def _connection_lost(self, link_uri, msg):
+    def connectionLost(self, link_uri, msg):
         """Callback when disconnected after a connection has been made (i.e
         Crazyflie moves out of range)"""
         print('Connection to %s lost: %s' % (link_uri, msg))
 
-    def _disconnected(self, link_uri):
+    def disconnected(self, link_uri):
         """Callback when the Crazyflie is disconnected (called in all cases)"""
         print('Disconnected from %s' % link_uri)
+        
 
-    def _app_packet_received(self, data):
-        (sum, ) = struct.unpack("<f", data)
-        print(f"Received sum: {sum}")
-        self._batteryLevel = sum
+    def appPacketReceived(self, data):
+        (battery, infoType) = struct.unpack("<fc", data)
+        if(infoType == b'b'):
+            self.__batteryLevel = battery
 
-    def _sendPacket(self, value):
+    def sendPacket(self, value):
         data = struct.pack("<c", value)
         self._cf.appchannel.send_packet(data)
-        print(f"Sent x: {value}")
+        print(f"Sent command: {value}")
 
         time.sleep(1)
 
-    def _getBatteryLevel(self):
-        return self._batteryLevel
+    def getBatteryLevel(self):
+        return self.__batteryLevel
+
+
+def connectToDrone():
+    print('Scanning interfaces for Crazyflies...')
+    available = cflib.crtp.scan_interfaces()
+    if len(available) > 0:
+        print('Crazyflies found:')
+    else:
+        print('No Crazyflies found')
+
+    return available
+
+
+def updateDrones(droneList):
+    drones = []
+    for i in droneList:
+        i.destroy()
+    del droneList[:]
+    drones = connectToDrone()
+
+    for d in drones:
+        drone = Drone(d[0], AppchannelCommunicate(d[0]))
+        if(len(droneList) > 0):
+            for i in droneList:
+                if (drone.getId() != i.getId()):
+                    droneList.append(drone)
+        else:
+            droneList.append(drone)
+            
+    
