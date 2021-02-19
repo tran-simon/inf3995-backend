@@ -54,7 +54,7 @@ class AppchannelCommunicate:
 
     def __init__(self, link_uri):
         """ Initialize and run the example with the specified link_uri """
-        
+
         self._cf = Crazyflie()
 
         self._cf.connected.add_callback(self.connected)
@@ -86,7 +86,7 @@ class AppchannelCommunicate:
     def disconnected(self, link_uri):
         """Callback when the Crazyflie is disconnected (called in all cases)"""
         print('Disconnected from %s' % link_uri)
-        
+
 
     def appPacketReceived(self, data):
         (battery, infoType) = struct.unpack("<fc", data)
@@ -130,5 +130,4 @@ def updateDrones(droneList):
                     droneList.append(drone)
         else:
             droneList.append(drone)
-            
-    
+
