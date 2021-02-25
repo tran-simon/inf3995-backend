@@ -14,6 +14,3 @@ class Drone:
 
     def destroy(self):
         self.__channel._cf.close_link()
-
-
-
