@@ -18,6 +18,8 @@ ENV FLASK_ENV=development
 ENV PORT=5000
 
 EXPOSE 5000
+EXPOSE 80
+
 
 RUN mkdir  -p /etc/udev/rules.d
 RUN echo '# Crazyradio (normal operation) \

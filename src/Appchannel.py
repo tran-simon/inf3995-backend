@@ -51,6 +51,8 @@ class AppchannelCommunicate:
     """Example that connects to a Crazyflie and ramps the motors up/down and
     the disconnects"""
     __batteryLevel = 0.0
+    __speed = 0.0
+    __state = 0.0
 
     def __init__(self, link_uri):
         """ Initialize and run the example with the specified link_uri """
@@ -89,19 +91,39 @@ class AppchannelCommunicate:
 
 
     def appPacketReceived(self, data):
-        (battery, infoType) = struct.unpack("<fc", data)
+        (value, infoType) = struct.unpack("<fc", data)
+
         if(infoType == b'b'):
-            self.__batteryLevel = battery
+            self.__batteryLevel = value
+
+        elif(infoType == b'v'):
+            self.__speed = value
+
+        elif(infoType == b's'):
+            self.__state = value
 
     def sendPacket(self, value):
         data = struct.pack("<c", value)
         self._cf.appchannel.send_packet(data)
         print(f"Sent command: {value}")
 
-        time.sleep(1)
+        time.sleep(0.01)
 
     def getBatteryLevel(self):
         return self.__batteryLevel
+
+    def getSpeed(self):
+        if(self.__speed < 0.001):
+            return 0
+        else:
+            return self.__speed
+
+    def getState(self):
+        if(self.__state > 0.0):
+            return "IN-MISSION"
+        else:
+            return "STANDBY"
+
 
 
 def connectToDrone():

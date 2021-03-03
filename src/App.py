@@ -5,6 +5,7 @@ from DroneDTO import DroneDTO
 from Appchannel import updateDrones
 
 droneList = []
+isSim = False
 
 
 app = Flask(__name__)
@@ -17,12 +18,16 @@ updateDrones(droneList)
 # Met a jour le statut des crazyflies. Retourne le statut
 @app.route("/updateStats")
 def updateStats():
-    for drone in droneList:
-        try:
-            drone.getChannel().sendPacket(b'b')
-            drone.getChannel().sendPacket(b'v')
-        except:
-            continue
+    if(isSim):
+        pass
+    else: 
+        for drone in droneList:
+            try:
+                drone.getChannel().sendPacket(b'b')
+                drone.getChannel().sendPacket(b'v')
+                drone.getChannel().sendPacket(b's')
+            except:
+                continue
     return getStats()
 
 
@@ -34,7 +39,10 @@ def getStats():
 @app.route('/scan')
 def scan():
     global droneList
-    updateDrones(droneList)
+    if(isSim):
+        pass
+    else:
+        updateDrones(droneList)
     return updateStats()
 
 # Permet de verifier que le backend est bien connecte
@@ -45,23 +53,36 @@ def liveCheck():
 
 @app.route("/takeOff")
 def takeOff():
-    try:
-        for d in droneList:
-            d.getChannel().sendPacket(b't')
+    if(isSim):
+        pass
+    else:
+        try:
+            for d in droneList:
+                d.getChannel().sendPacket(b't')
 
-        return {'result': True}
-    except:
-        print("Error")
-        return 'Error', 500
+            return {'result': True}
+        except:
+            print("Error")
+            return 'Error', 500
 
 
 @app.route("/land")
 def land():
-    try:
-        for d in droneList:
-            d.getChannel().sendPacket(b'l')
+    if(isSim):
+        pass
+    else:
+        try:
+            for d in droneList:
+                d.getChannel().sendPacket(b'l')
 
-        return {'result': True}
-    except:
-        print("Error")
-        return 'Error', 500
+            return {'result': True}
+        except:
+            print("Error")
+            return 'Error', 500
+
+@app.route("/reset")
+def reset():
+    for i in droneList:
+        i.destroy()
+    del droneList[:]
+    isSim = True
