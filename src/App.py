@@ -3,13 +3,17 @@ from flask_cors import CORS
 from DroneDTO import DroneDTO
 
 from Appchannel import updateDrones
+import socket
 
+
+s = socket.socket()
 droneList = []
-isSim = False
+isSim = True
 
 
 app = Flask(__name__)
 CORS(app)
+
 
 # Connection to drones
 updateDrones(droneList)
@@ -54,7 +58,17 @@ def liveCheck():
 @app.route("/takeOff")
 def takeOff():
     if(isSim):
-        pass
+        try:
+            global s
+            s.send(b's')
+            s.flush()
+            mess = s.recv(1024)
+
+            return {'result': True}
+        except:
+            print("Error")
+            return 'Error', 500
+        
     else:
         try:
             for d in droneList:
@@ -69,7 +83,16 @@ def takeOff():
 @app.route("/land")
 def land():
     if(isSim):
-        pass
+        try:
+            global s
+            s.send(b'l')
+            s.flush()
+            mess = s.recv(1024)
+
+            return {'result': True}
+        except:
+            print("Error")
+            return 'Error', 500
     else:
         try:
             for d in droneList:
@@ -86,3 +109,14 @@ def reset():
         i.destroy()
     del droneList[:]
     isSim = True
+
+
+@app.route("/connect")
+def connect():
+    global s
+    HOST = '172.17.0.1'  # The server's hostname or IP address
+    PORT = 80        # The port used by the server
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((HOST, PORT))
+    return "Connected"
+
