@@ -11,7 +11,7 @@ simulation_is_connected = False
 s = socket.socket()
 droneList = []
 simDroneList = []
-isSim = True
+isSim = False
 
 
 app = Flask(__name__)
@@ -138,11 +138,12 @@ def reset():
     for i in droneList:
         i.destroy()
     del droneList[:]
-    if request.args.get("simulation"):
+    if request.args.get("simulation") == 'true':
         if not simulation_is_connected:
-            res = connect()
-            if res.ok:
+            if connect() == True:
                 isSim = True
+            else:
+                return jsonify(isSim), 500
         else:
             isSim = True
     else:
@@ -150,7 +151,6 @@ def reset():
     return jsonify(isSim)
 
 
-@app.route("/connect")
 def connect():
     global s
     global simDroneList
@@ -165,9 +165,8 @@ def connect():
         while i < int(numberOfDrones):
             simDroneList.append(Dronesim(i))
             i += 1
-        return numberOfDrones, 200
+        return True
     except:
-        print("Error")
-        return 'Error', 500
+        return False
 
 
