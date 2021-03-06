@@ -7,6 +7,7 @@ from Appchannel import updateDrones
 from DroneDTO import DroneDTO
 from Dronesim import Dronesim
 
+simulation_is_connected = False
 s = socket.socket()
 droneList = []
 simDroneList = []
@@ -133,10 +134,13 @@ def land():
 @app.route("/reset")
 def reset():
     global isSim
+    global simulation_is_connected
     for i in droneList:
         i.destroy()
     del droneList[:]
     isSim = request.args.get("simulation")
+    if(isSim and not simulation_is_connected):
+        connect()
 
 
 @app.route("/connect")
