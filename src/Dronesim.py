@@ -1,7 +1,7 @@
 class Dronesim:
     __id = ""
     __battery = -1
-    __speed = -1
+    __speed = 0
     __state = -1
 
     def __init__(self, id):
@@ -24,12 +24,12 @@ class Dronesim:
 
     def setBattery(self, battery):
         if battery is not None:
-            self.__battery = battery
+            self.__battery = round(float(battery.rstrip('\x00')) * 100)
 
     def setSpeed(self, speed):
         if speed is not None:
-            self.__speed = speed
+            self.__speed = int(speed.rstrip('\x00'))
 
     def setState(self, state):
         if state is not None:
-            self.__state = state
+            self.__state = int(state.rstrip('\x00'))

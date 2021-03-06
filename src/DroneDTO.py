@@ -6,7 +6,7 @@ from Dronesim import Dronesim
 class DroneDTO:
     droneId = ''
     battery = -1
-    speed = 0.0
+    speed = 0
     state = ""
 
     def  __init__(self, isSim, drone):
