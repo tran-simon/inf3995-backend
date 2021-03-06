@@ -1,17 +1,15 @@
 from flask import Flask, jsonify, json
 from flask_cors import CORS
 from DroneDTO import DroneDTO
-
+from Dronesim import Dronesim
 from Appchannel import updateDrones
 import socket
 
 s = socket.socket()
 droneList = []
+simDroneList = []
 isSim = True
 
-state = -1
-battery = -1
-velocity = -1
 
 app = Flask(__name__)
 CORS(app)
@@ -26,20 +24,20 @@ updateDrones(droneList)
 def updateStats():
     if(isSim):
         global s
-        global state
-        global battery
-        global velocity
 
         buffer = s.recv(1024)
         state_array = buffer.decode("utf-8").rsplit('s')
         battery_array = buffer.decode("utf-8").rsplit('b')
-        velocity_array = buffer.decode("utf-8").rsplit('v')
+        speed_array = buffer.decode("utf-8").rsplit('v')
 
-        state = getLatestData(state_array.pop(len(state_array) - 1)) or state
-        battery = getLatestData(battery_array.pop(len(battery_array) - 1)) or battery
-        velocity = getLatestData(velocity_array.pop(len(velocity_array) - 1)) or velocity
+        state = getLatestData(state_array.pop(len(state_array) - 1))
+        battery = getLatestData(battery_array.pop(len(battery_array) - 1))
+        speed = getLatestData(speed_array.pop(len(speed_array) - 1))
 
-        return state
+        for drone in simDroneList:
+            drone.setState(state)
+            drone.setBattery(battery)
+            drone.setSpeed(speed)
     else: 
         for drone in droneList:
             try:
@@ -61,7 +59,10 @@ def getLatestData(data):
 
 # Retourne le statuts des crazyflies
 def getStats():
-    return jsonify([DroneDTO(drone).__dict__ for drone in droneList])
+    if (isSim):
+        return jsonify([DroneDTO(True, drone).__dict__ for drone in simDroneList])
+    return jsonify([DroneDTO(False, drone).__dict__ for drone in droneList])
+
 
 # Permet de scanner pour des nouveaux crazyflies. Retourne les stats à jours
 @app.route('/scan')
@@ -140,8 +141,17 @@ def connect():
     global s
     HOST = '172.17.0.1'  # The server's hostname or IP address
     PORT = 80        # The port used by the server
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((HOST, PORT))
-    numberOfDrones = s.recv(1024)
-    return numberOfDrones
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, PORT))
+        numberOfDrones = s.recv(1024)
+        i = 0
+        while i < int(numberOfDrones):
+            simDroneList.append(Dronesim(i))
+            i += 1
+        return numberOfDrones
+    except:
+        print("Error")
+        return 'Error', 500
+
 

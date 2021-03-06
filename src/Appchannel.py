@@ -120,9 +120,9 @@ class AppchannelCommunicate:
 
     def getState(self):
         if(self.__state > 0.0):
-            return "IN-MISSION"
+            return "In mission"
         else:
-            return "STANDBY"
+            return "Standby"
 
 
 
