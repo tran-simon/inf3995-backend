@@ -139,9 +139,11 @@ def reset():
 @app.route("/connect")
 def connect():
     global s
+    global simDroneList
     HOST = '172.17.0.1'  # The server's hostname or IP address
     PORT = 80        # The port used by the server
     try:
+        simDroneList = []
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((HOST, PORT))
         numberOfDrones = s.recv(1024)

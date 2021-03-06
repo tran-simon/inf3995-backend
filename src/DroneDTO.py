@@ -17,11 +17,11 @@ class DroneDTO:
 
             switcher = {
                 -1 : "No State Received",
-                0 : "Start",
-                1 : "Take Off",
-                2 : "Explore",
-                3 : "Go To Base",
-                4 : "Land"
+                0 : "Standby",
+                1 : "In mission",
+                2 : "In mission",
+                3 : "In mission",
+                4 : "Standby"
             }
             self.state = switcher.get(drone.getState())
 
