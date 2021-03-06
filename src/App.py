@@ -23,10 +23,19 @@ updateDrones(droneList)
 @app.route("/updateStats")
 def updateStats():
     if(isSim):
-        pass
+        global s
+
+        buffer = s.recv(1024)
+        buffer_array = buffer.decode("utf-8").rsplit(".")
+        value = buffer_array.pop(len(buffer_array) - 1)
+        value = value[:2] + '.' + value[2:]
+        value = value[:4]
+        value = value + "%"
+        return value
     else: 
         for drone in droneList:
             try:
+
                 drone.getChannel().sendPacket(b'b')
                 drone.getChannel().sendPacket(b'v')
                 drone.getChannel().sendPacket(b's')
