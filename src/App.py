@@ -138,9 +138,16 @@ def reset():
     for i in droneList:
         i.destroy()
     del droneList[:]
-    isSim = request.args.get("simulation")
-    if(isSim and not simulation_is_connected):
-        connect()
+    if request.args.get("simulation"):
+        if not simulation_is_connected:
+            res = connect()
+            if res.ok:
+                isSim = True
+        else:
+            isSim = True
+    else:
+        isSim = False
+    return jsonify(isSim)
 
 
 @app.route("/connect")
@@ -158,7 +165,7 @@ def connect():
         while i < int(numberOfDrones):
             simDroneList.append(Dronesim(i))
             i += 1
-        return numberOfDrones
+        return numberOfDrones, 200
     except:
         print("Error")
         return 'Error', 500
