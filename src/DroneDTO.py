@@ -27,7 +27,7 @@ class DroneDTO:
 
         else:
             self.droneId = drone.getId()
-            self.battery = "{:.2f}".format(drone.getChannel().getBatteryLevel())
+            self.battery = drone.getChannel().getBatteryLevel()
             self.speed = drone.getChannel().getSpeed()
             self.state = drone.getChannel().getState()
 
