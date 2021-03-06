@@ -5,11 +5,13 @@ from DroneDTO import DroneDTO
 from Appchannel import updateDrones
 import socket
 
-
 s = socket.socket()
 droneList = []
 isSim = True
 
+state = -1
+battery = -1
+velocity = -1
 
 app = Flask(__name__)
 CORS(app)
@@ -24,14 +26,20 @@ updateDrones(droneList)
 def updateStats():
     if(isSim):
         global s
+        global state
+        global battery
+        global velocity
 
         buffer = s.recv(1024)
-        buffer_array = buffer.decode("utf-8").rsplit(".")
-        value = buffer_array.pop(len(buffer_array) - 1)
-        value = value[:2] + '.' + value[2:]
-        value = value[:4]
-        value = value + "%"
-        return value
+        state_array = buffer.decode("utf-8").rsplit('s')
+        battery_array = buffer.decode("utf-8").rsplit('b')
+        velocity_array = buffer.decode("utf-8").rsplit('v')
+
+        state = getLatestData(state_array.pop(len(state_array) - 1)) or state
+        battery = getLatestData(battery_array.pop(len(battery_array) - 1)) or battery
+        velocity = getLatestData(velocity_array.pop(len(velocity_array) - 1)) or velocity
+
+        return state
     else: 
         for drone in droneList:
             try:
@@ -43,6 +51,13 @@ def updateStats():
                 continue
     return getStats()
 
+
+def getLatestData(data):
+    i = 0
+    while i < len(data):
+        if (data[i] == 's' or data[i] == 'b' or data[i] == 'v'):
+            return data[:i]
+        i += 1
 
 # Retourne le statuts des crazyflies
 def getStats():
@@ -127,5 +142,6 @@ def connect():
     PORT = 80        # The port used by the server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((HOST, PORT))
-    return "Connected"
+    numberOfDrones = s.recv(1024)
+    return numberOfDrones
 
