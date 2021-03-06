@@ -1,9 +1,11 @@
-from flask import Flask, jsonify, json
+import socket
+
+from flask import Flask, jsonify, request
 from flask_cors import CORS
+
+from Appchannel import updateDrones
 from DroneDTO import DroneDTO
 from Dronesim import Dronesim
-from Appchannel import updateDrones
-import socket
 
 s = socket.socket()
 droneList = []
@@ -38,7 +40,7 @@ def updateStats():
             drone.setState(state)
             drone.setBattery(battery)
             drone.setSpeed(speed)
-    else: 
+    else:
         for drone in droneList:
             try:
 
@@ -93,7 +95,7 @@ def takeOff():
         except:
             print("Error")
             return 'Error', 500
-        
+
     else:
         try:
             for d in droneList:
@@ -130,10 +132,11 @@ def land():
 
 @app.route("/reset")
 def reset():
+    global isSim
     for i in droneList:
         i.destroy()
     del droneList[:]
-    isSim = True
+    isSim = request.args.get("simulation")
 
 
 @app.route("/connect")
