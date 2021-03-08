@@ -28,7 +28,7 @@ class Dronesim:
 
     def setSpeed(self, speed):
         if speed is not None:
-            self.__speed = int(speed.rstrip('\x00'))
+            self.__speed = round(float(speed.rstrip('\x00')), 3)
 
     def setState(self, state):
         if state is not None:
