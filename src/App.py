@@ -1,4 +1,7 @@
 import socket
+import threading
+import selectors
+import types
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -7,12 +10,12 @@ from Appchannel import updateDrones
 from DroneDTO import DroneDTO
 from Dronesim import Dronesim
 
-simulation_is_connected = False
 s = socket.socket()
 droneList = []
 simDroneList = []
 isSim = False
-
+droneCount = 0
+sel = selectors.DefaultSelector()
 
 app = Flask(__name__)
 CORS(app)
@@ -27,6 +30,7 @@ updateDrones(droneList)
 def updateStats():
     if(isSim):
         global s
+        check_sim()
 
         buffer = s.recv(1024)
         state_array = buffer.decode("utf-8").rsplit('s')
@@ -85,12 +89,20 @@ def liveCheck():
 
 @app.route("/takeOff")
 def takeOff():
+    global simDroneList
+    try:
+        for drone in simDroneList:
+            drone.getSocket().send(b's')
+    except socket.error as e:
+        return str(e)
+
     if(isSim):
         try:
             global s
-            s.send(b's')
-            s.flush()
-            mess = s.recv(1024)
+            for drone in simDroneList:
+                return drone.getSocket().jsonify()
+                drone.getSocket().send(b's')
+                drone.getSocket().flush()
 
             return {'result': True}
         except:
@@ -113,9 +125,10 @@ def land():
     if(isSim):
         try:
             global s
-            s.send(b'l')
-            s.flush()
-            mess = s.recv(1024)
+            global simDroneList
+            for drone in simDroneList:
+                drone.getSocket().send(b'l')
+                drone.getSocket().flush()
 
             return {'result': True}
         except:
@@ -134,39 +147,48 @@ def land():
 @app.route("/reset")
 def reset():
     global isSim
-    global simulation_is_connected
+    global simDroneList
     for i in droneList:
         i.destroy()
     del droneList[:]
     if request.args.get("simulation") == 'true':
-        if not simulation_is_connected:
-            if connect() == True:
-                isSim = True
-            else:
-                return jsonify(isSim), 500
-        else:
-            isSim = True
+        simDroneList = []
+        connect()
+        isSim = True
     else:
         isSim = False
     return jsonify(isSim)
 
 
+def check_sim():
+    events = sel.select(timeout=None)
+    for key, mask in events:
+        if key.data is None:
+            accept_wrapper(key.fileobj)
+
+
+def accept_wrapper(sock):
+    global droneCount
+    conn, addr = sock.accept()  # Should be ready to read
+    simDroneList.append(Dronesim(droneCount, conn))
+    droneCount += 1
+
+
+
 def connect():
     global s
-    global simDroneList
-    HOST = '172.17.0.1'  # The server's hostname or IP address
-    PORT = 80        # The port used by the server
+    HOST = '0.0.0.0'  # The server's hostname or IP address
+    PORT = 80   # The port used by the server
     try:
-        simDroneList = []
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((HOST, PORT))
-        numberOfDrones = s.recv(1024)
-        i = 0
-        while i < int(numberOfDrones):
-            simDroneList.append(Dronesim(i))
-            i += 1
-        return True
-    except:
-        return False
+        s.bind((HOST, PORT))
+        s.listen()
+        print('listening on', (HOST, PORT))
+        s.setblocking(False)
+        sel.register(s, selectors.EVENT_READ, data=None)  
+        check_sim()      
+        
+    except socket.error as e:
+        return str(e)
 
 

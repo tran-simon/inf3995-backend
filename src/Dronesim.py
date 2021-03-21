@@ -1,17 +1,22 @@
 class Dronesim:
     __id = ""
+    __socket = None
     __battery = -1
     __speed = 0
     __state = -1
 
-    def __init__(self, id):
+    def __init__(self, id, socket):
         self.__id = id
+        self.__socket = socket
         self.__battery = -1
         self.__speed = -1
         self.__state = -1
 
     def getId(self):
         return self.__id
+
+    def getSocket(self):
+        return self.__socket
 
     def getBattery(self):
         return self.__battery
