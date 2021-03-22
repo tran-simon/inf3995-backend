@@ -13,8 +13,10 @@ from Dronesim import Dronesim
 s = socket.socket()
 droneList = []
 simDroneList = []
-isSim = False
+isSim = True
 droneCount = 0
+numberOfDrones = 4
+data = ''
 sel = selectors.DefaultSelector()
 
 app = Flask(__name__)
@@ -173,20 +175,25 @@ def accept_wrapper(sock):
     simDroneList.append(Dronesim(droneCount, conn))
     droneCount += 1
 
-
-
+@app.route("/connect")
 def connect():
     global s
+    global numberOfDrones
+    global droneCount
+    global data
     HOST = '0.0.0.0'  # The server's hostname or IP address
     PORT = 80   # The port used by the server
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind((HOST, PORT))
-        s.listen()
-        print('listening on', (HOST, PORT))
-        s.setblocking(False)
-        sel.register(s, selectors.EVENT_READ, data=None)  
-        check_sim()      
+        for i in range(numberOfDrones):
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.bind((HOST, (PORT + i)))
+            s.listen(10)
+            conn, addr = s.accept()
+            data += str(conn.recv(1024))
+            conn.send(b't')
+            conn.close()
+            s.close()
+        return data
         
     except socket.error as e:
         return str(e)
