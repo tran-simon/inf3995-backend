@@ -2,8 +2,9 @@ class Dronesim:
     __id = ""
     __socket = None
     __battery = -1
-    __speed = 0
+    __speed = -1
     __state = -1
+    __sensors = -1
 
     def __init__(self, id, socket):
         self.__id = id
@@ -11,6 +12,7 @@ class Dronesim:
         self.__battery = -1
         self.__speed = -1
         self.__state = -1
+        self.__sensors = {-1, -1, -1, -1}
 
     def getId(self):
         return self.__id
@@ -27,6 +29,9 @@ class Dronesim:
     def getState(self):
         return self.__state
 
+    def getSensors(self):
+        return self.__sensors
+
     def setBattery(self, battery):
         if battery is not None:
             self.__battery = round(float(battery.rstrip('\x00')) * 100)
@@ -38,3 +43,7 @@ class Dronesim:
     def setState(self, state):
         if state is not None:
             self.__state = int(state.rstrip('\x00'))
+
+    def setSensors(self, sensors_array):
+        if sensors_array is not None:
+            self.__sensors = sensors_array

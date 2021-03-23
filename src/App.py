@@ -35,13 +35,18 @@ def updateStats():
             state_array = buffer.decode("utf-8").rsplit('s')
             battery_array = buffer.decode("utf-8").rsplit('b')
             speed_array = buffer.decode("utf-8").rsplit('v')
+            point_array = buffer.decode("utf-8").rsplit('p')
 
-            state = getLatestData(state_array.pop(len(state_array) - 1))
-            battery = getLatestData(battery_array.pop(len(battery_array) - 1))
-            speed = getLatestData(speed_array.pop(len(speed_array) - 1))
+            state = getLatestData(state_array.pop(len(state_array) - 2))
+            battery = getLatestData(battery_array.pop(len(battery_array) - 2))
+            speed = getLatestData(speed_array.pop(len(speed_array) - 2))
+            points = getLatestData(point_array.pop(len(point_array) - 2))
+            sensors_array = points.rsplit(';')
+
             drone.setState(state)
             drone.setBattery(battery)
             drone.setSpeed(speed)
+            drone.setSensors(sensors_array)
     else:
         for drone in droneList:
             try:
@@ -57,7 +62,7 @@ def updateStats():
 def getLatestData(data):
     i = 0
     while i < len(data):
-        if (data[i] == 's' or data[i] == 'b' or data[i] == 'v'):
+        if (data[i] == 's' or data[i] == 'b' or data[i] == 'v' or data[i] == 'p'):
             return data[:i]
         i += 1
 
