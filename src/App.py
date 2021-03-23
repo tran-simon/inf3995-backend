@@ -29,19 +29,16 @@ updateDrones(droneList)
 @app.route("/updateStats")
 def updateStats():
     if(isSim):
-        global s
-        check_sim()
-
-        buffer = s.recv(1024)
-        state_array = buffer.decode("utf-8").rsplit('s')
-        battery_array = buffer.decode("utf-8").rsplit('b')
-        speed_array = buffer.decode("utf-8").rsplit('v')
-
-        state = getLatestData(state_array.pop(len(state_array) - 1))
-        battery = getLatestData(battery_array.pop(len(battery_array) - 1))
-        speed = getLatestData(speed_array.pop(len(speed_array) - 1))
-
+        #check_sim()
         for drone in simDroneList:
+            buffer = drone.getSocket().recv(1024)
+            state_array = buffer.decode("utf-8").rsplit('s')
+            battery_array = buffer.decode("utf-8").rsplit('b')
+            speed_array = buffer.decode("utf-8").rsplit('v')
+
+            state = getLatestData(state_array.pop(len(state_array) - 1))
+            battery = getLatestData(battery_array.pop(len(battery_array) - 1))
+            speed = getLatestData(speed_array.pop(len(speed_array) - 1))
             drone.setState(state)
             drone.setBattery(battery)
             drone.setSpeed(speed)
@@ -90,19 +87,10 @@ def liveCheck():
 @app.route("/takeOff")
 def takeOff():
     global simDroneList
-    try:
-        for drone in simDroneList:
-            drone.getSocket().send(b's')
-    except socket.error as e:
-        return str(e)
-
     if(isSim):
         try:
-            global s
             for drone in simDroneList:
-                return drone.getSocket().jsonify()
                 drone.getSocket().send(b's')
-                drone.getSocket().flush()
 
             return {'result': True}
         except:
@@ -124,11 +112,9 @@ def takeOff():
 def land():
     if(isSim):
         try:
-            global s
             global simDroneList
             for drone in simDroneList:
                 drone.getSocket().send(b'l')
-                drone.getSocket().flush()
 
             return {'result': True}
         except:
