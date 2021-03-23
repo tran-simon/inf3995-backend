@@ -1,7 +1,7 @@
 import socket
-import threading
 import selectors
 import types
+from _thread import *
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -10,11 +10,9 @@ from Appchannel import updateDrones
 from DroneDTO import DroneDTO
 from Dronesim import Dronesim
 
-s = socket.socket()
 droneList = []
 simDroneList = []
 isSim = True
-droneCount = 0
 numberOfDrones = 4
 data = ''
 sel = selectors.DefaultSelector()
@@ -175,27 +173,42 @@ def accept_wrapper(sock):
     simDroneList.append(Dronesim(droneCount, conn))
     droneCount += 1
 
+def clientthread(conn):
+    global data
+    data += str(conn.recv(1024))
+    conn.send(b't')
+    conn.close()
+
+
+
+
 @app.route("/connect")
 def connect():
-    global s
     global numberOfDrones
-    global droneCount
     global data
+    global simDroneList
     HOST = '0.0.0.0'  # The server's hostname or IP address
     PORT = 80   # The port used by the server
     try:
+        for d in simDroneList:
+            (d.getSocket()).close()
+        del simDroneList[:]
+
         for i in range(numberOfDrones):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.bind((HOST, (PORT + i)))
-            s.listen(10)
+            s.listen(1)
             conn, addr = s.accept()
-            data += str(conn.recv(1024))
+            #start_new_thread(clientthread, (conn,))
+            simDroneList.append(Dronesim(i, conn))
+            #data += str(conn.recv(1024))
             conn.send(b't')
-            conn.close()
+            #conn.close()
             s.close()
         return data
         
     except socket.error as e:
+        s.close()
         return str(e)
 
 
