@@ -13,7 +13,7 @@ from Dronesim import Dronesim
 droneList = []
 simDroneList = []
 isSim = True
-numberOfDrones = 4
+numberOfDrones = 2
 data = ''
 sel = selectors.DefaultSelector()
 
