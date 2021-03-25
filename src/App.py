@@ -13,7 +13,7 @@ from Dronesim import Dronesim
 droneList = []
 simDroneList = []
 isSim = True
-numberOfDrones = 2
+numberOfDrones = 4
 data = ''
 sel = selectors.DefaultSelector()
 
@@ -29,23 +29,25 @@ updateDrones(droneList)
 @app.route("/updateStats")
 def updateStats():
     if(isSim):
-        #check_sim()
         for drone in simDroneList:
             buffer = drone.getSocket().recv(1024)
             state_array = buffer.decode("utf-8").rsplit('s')
             battery_array = buffer.decode("utf-8").rsplit('b')
             speed_array = buffer.decode("utf-8").rsplit('v')
+            pos_array = buffer.decode("utf-8").rsplit('l')
             point_array = buffer.decode("utf-8").rsplit('p')
 
             state = getLatestData(state_array.pop(len(state_array) - 2))
             battery = getLatestData(battery_array.pop(len(battery_array) - 2))
             speed = getLatestData(speed_array.pop(len(speed_array) - 2))
+            pos = getLatestData(pos_array.pop(len(pos_array) - 2))
+            position = pos.rsplit(';')
             points = getLatestData(point_array.pop(len(point_array) - 2))
             sensors_array = points.rsplit(';')
-
             drone.setState(state)
             drone.setBattery(battery)
             drone.setSpeed(speed)
+            drone.setPosition(position)
             drone.setSensors(sensors_array)
     else:
         for drone in droneList:
@@ -62,7 +64,7 @@ def updateStats():
 def getLatestData(data):
     i = 0
     while i < len(data):
-        if (data[i] == 's' or data[i] == 'b' or data[i] == 'v' or data[i] == 'p'):
+        if (data[i] == 's' or data[i] == 'b' or data[i] == 'v' or data[i] == 'l' or data[i] == 'p'):
             return data[:i]
         i += 1
 
@@ -150,29 +152,6 @@ def reset():
         isSim = False
     return jsonify(isSim)
 
-
-def check_sim():
-    events = sel.select(timeout=None)
-    for key, mask in events:
-        if key.data is None:
-            accept_wrapper(key.fileobj)
-
-
-def accept_wrapper(sock):
-    global droneCount
-    conn, addr = sock.accept()  # Should be ready to read
-    simDroneList.append(Dronesim(droneCount, conn))
-    droneCount += 1
-
-def clientthread(conn):
-    global data
-    data += str(conn.recv(1024))
-    conn.send(b't')
-    conn.close()
-
-
-
-
 @app.route("/connect")
 def connect():
     global numberOfDrones
@@ -190,11 +169,8 @@ def connect():
             s.bind((HOST, (PORT + i)))
             s.listen(1)
             conn, addr = s.accept()
-            #start_new_thread(clientthread, (conn,))
             simDroneList.append(Dronesim(i, conn))
-            #data += str(conn.recv(1024))
             conn.send(b't')
-            #conn.close()
             s.close()
         return data
         
