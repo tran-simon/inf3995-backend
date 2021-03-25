@@ -6,6 +6,7 @@ from flask_cors import CORS
 from Appchannel import updateDrones
 from DroneDTO import DroneDTO
 from Dronesim import Dronesim
+from StatusDTO import StatusDTO
 
 simulation_is_connected = False
 s = socket.socket()
@@ -78,9 +79,10 @@ def scan():
     return updateStats()
 
 # Permet de verifier que le backend est bien connecte
+# Le body contient vrai si le backend est connecté à la simulation
 @app.route('/liveCheck')
 def liveCheck():
-    return 'OK', 200
+    return jsonify(StatusDTO(isSim).__dict__), 200
 
 
 @app.route("/takeOff")
