@@ -9,8 +9,9 @@ WORKDIR /root/backend
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-
+RUN rm -rf /usr/local/lib/python3.9/site-packages/cflib
 COPY . .
+COPY cflib /usr/local/lib/python3.9/site-packages/cflib
 
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_APP=src/App.py
