@@ -11,7 +11,7 @@ from StatusDTO import StatusDTO
 
 droneList = []
 simDroneList = []
-isSim = True
+isSim = False
 numberOfDrones = 4
 data = ''
 
@@ -145,7 +145,6 @@ def reset():
     del droneList[:]
     if request.args.get("simulation") == 'true':
         simDroneList = []
-        connect()
         isSim = True
     else:
         isSim = False
@@ -172,7 +171,7 @@ def connect():
             conn.send(b't')
             s.close()
         return data
-        
+
     except socket.error as e:
         s.close()
         return str(e)

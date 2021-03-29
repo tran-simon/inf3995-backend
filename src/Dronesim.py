@@ -38,16 +38,25 @@ class Dronesim:
         return self.__sensors
 
     def setBattery(self, battery):
-        if battery is not None:
-            self.__battery = round(float(battery.rstrip('\x00')) * 100)
+        try:
+            if battery is not None:
+                self.__battery = round(float(battery.rstrip('\x00')) * 100)
+        except:
+            print("Error: Battery Not a number: ", battery)
 
     def setSpeed(self, speed):
-        if speed is not None:
-            self.__speed = round(float(speed.rstrip('\x00')), 3)
+        try:
+            if speed is not None:
+                self.__speed = round(float(speed.rstrip('\x00')), 3)
+        except:
+            print("Error: Speed Not a number: ", speed)
 
     def setState(self, state):
-        if state is not None:
-            self.__state = int(state.rstrip('\x00'))
+        try:
+            if state is not None:
+                self.__state = int(state.rstrip('\x00'))
+        except:
+            print("Error: State Not a number: ", state)
 
     def setPosition(self, position):
         if position is not None:
