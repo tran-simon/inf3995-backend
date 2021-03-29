@@ -1,4 +1,5 @@
 import socket
+import socketserver
 import types
 
 from flask import Flask, jsonify, request
@@ -29,6 +30,7 @@ def updateStats():
     if(isSim):
         for drone in simDroneList:
             buffer = drone.getSocket().recv(1024)
+
             state_array = buffer.decode("utf-8").rsplit('s')
             battery_array = buffer.decode("utf-8").rsplit('b')
             speed_array = buffer.decode("utf-8").rsplit('v')
@@ -40,8 +42,10 @@ def updateStats():
             speed = getLatestData(speed_array.pop(len(speed_array) - 2))
             pos = getLatestData(pos_array.pop(len(pos_array) - 2))
             position = pos.rsplit(';')
+
             points = getLatestData(point_array.pop(len(point_array) - 2))
             sensors_array = points.rsplit(';')
+
             drone.setState(state)
             drone.setBattery(battery)
             drone.setSpeed(speed)
@@ -144,7 +148,9 @@ def reset():
         i.destroy()
     del droneList[:]
     if request.args.get("simulation") == 'true':
-        simDroneList = []
+        for d in simDroneList:
+            (d.getSocket()).close()
+        del simDroneList[:]
         isSim = True
     else:
         isSim = False
@@ -155,6 +161,7 @@ def connect():
     global numberOfDrones
     global data
     global simDroneList
+    socketserver.TCPServer.allow_reuse_address = True
     HOST = '0.0.0.0'  # The server's hostname or IP address
     PORT = 80   # The port used by the server
     try:
