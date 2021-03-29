@@ -1,7 +1,5 @@
 import socket
-import selectors
 import types
-from _thread import *
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -16,7 +14,6 @@ simDroneList = []
 isSim = True
 numberOfDrones = 4
 data = ''
-sel = selectors.DefaultSelector()
 
 app = Flask(__name__)
 CORS(app)
@@ -76,12 +73,12 @@ def getStats():
     return jsonify([DroneDTO(False, drone).__dict__ for drone in droneList])
 
 
-# Permet de scanner pour des nouveaux crazyflies. Retourne les stats à jours
+# Permet de scanner pour des nouveaux crazyflies. Retourne les stats a jours
 @app.route('/scan')
 def scan():
     global droneList
     if(isSim):
-        pass
+        connect()
     else:
         updateDrones(droneList)
     return updateStats()
