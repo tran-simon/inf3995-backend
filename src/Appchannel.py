@@ -94,13 +94,13 @@ class AppchannelCommunicate:
         (value, infoType) = struct.unpack("<fc", data)
 
         if(infoType == b'b'):
-            self.__batteryLevel = value
+            self.setBattery(value)
 
         elif(infoType == b'v'):
-            self.__speed = value
+            self.setSpeed(value)
 
         elif(infoType == b's'):
-            self.__state = value
+            self.setState(value)
 
     def sendPacket(self, value):
         data = struct.pack("<c", value)
@@ -123,6 +123,15 @@ class AppchannelCommunicate:
             return "In mission"
         else:
             return "Standby"
+
+    def setBattery(self, value):
+        self.__batteryLevel = value
+
+    def setSpeed(self, value):
+        self.__speed = value
+    
+    def setState(self, value):
+        self.__state = value
 
 
 
