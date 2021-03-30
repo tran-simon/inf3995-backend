@@ -175,7 +175,7 @@ def connect():
             s.bind((HOST, (PORT + i)))
             s.listen(1)
             conn, addr = s.accept()
-            simDroneList.append(Dronesim(i, conn))
+            simDroneList.append(Dronesim(str(i), conn))
             conn.send(b't')
             s.close()
         return data
