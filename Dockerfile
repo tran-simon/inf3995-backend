@@ -17,6 +17,7 @@ ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_APP=src/App.py
 ENV FLASK_ENV=development
 ENV PORT=5000
+ENV SERVER_URL=http://inf3995-crazyflie-firmware:9000
 
 EXPOSE 5000
 EXPOSE 80
