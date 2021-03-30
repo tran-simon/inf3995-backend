@@ -1,6 +1,7 @@
 import socket
 import socketserver
-import types
+import requests
+import os
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -183,4 +184,8 @@ def connect():
         s.close()
         return str(e)
 
+
+@app.route("/flash")
+def flash():
+    return requests.get(os.environ.get("SERVER_URL") + "/flash").content
 
