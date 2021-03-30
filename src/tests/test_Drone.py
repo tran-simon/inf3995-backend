@@ -8,13 +8,13 @@ from Appchannel import AppchannelCommunicate
 channel = AppchannelCommunicate(0)
 drone = Drone(0, channel)
 
-def test_getId():
+def test_get_id():
     global drone
     expected_id = 0
     actual_id = drone.getId()
     assert expected_id == actual_id
 
-def test_getChannel():
+def test_get_channel():
     global drone
     global channel
     expected_channel = channel

@@ -3,4 +3,4 @@ Flask==1.1.2
 Flask_Cors==3.0.10
 cflib==0.1.13.1
 pytest==6.2.2
-
+pytest-mock==3.5.1

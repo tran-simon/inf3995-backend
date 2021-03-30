@@ -156,9 +156,8 @@ def updateDrones(droneList):
     for d in drones:
         drone = Drone(d[0], AppchannelCommunicate(d[0]))
         if(len(droneList) > 0):
-            for i in droneList:
-                if (drone.getId() != i.getId()):
-                    droneList.append(drone)
+            if (drone.getId() not in [i.getId() for i in droneList]):
+                droneList.append(drone)
         else:
             droneList.append(drone)
 
