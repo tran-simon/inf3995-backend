@@ -36,6 +36,7 @@ import struct
 
 import cflib
 from cflib.crazyflie import Crazyflie
+from cflib.crazyflie.mem import MemoryElement, I2CElement
 from Drone import Drone
 
 STATE_STANDBY = "Standby"
@@ -102,6 +103,9 @@ class AppchannelCommunicate:
         elif(infoType == b's'):
             self.setState(value)
 
+        elif(infoType == b'p'):
+            self.__speed = value
+
     def sendPacket(self, value):
         data = struct.pack("<c", value)
         self._cf.appchannel.send_packet(data)
@@ -142,7 +146,6 @@ def connectToDrone():
         print('Crazyflies found:')
     else:
         print('No Crazyflies found')
-
     return available
 
 
@@ -151,7 +154,16 @@ def updateDrones(droneList):
     for i in droneList:
         i.destroy()
     del droneList[:]
-    drones = connectToDrone()
+    drones = connectToDrone() #Returns amount of drones 
+    print(drones)
+
+    #if(len(drones) > 0):
+            #for i in drones:
+                #drone = Drone(drones[i], AppchannelCommunicate(drones[i]))
+                #droneList.append(drone)
+   # else:
+        #drone = Drone(drones[0], AppchannelCommunicate(drones[0]))
+        #droneList.append(drone)
 
     for d in drones:
         drone = Drone(d[0], AppchannelCommunicate(d[0]))
