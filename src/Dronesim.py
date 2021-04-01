@@ -6,6 +6,8 @@ class Dronesim:
     __state = -1
     __position = -1
     __sensors = -1
+    _lastPos = -1
+    _curDifference = 0
 
     def __init__(self, id, socket):
         self.__id = id
@@ -15,6 +17,8 @@ class Dronesim:
         self.__state = -1
         self.__position = {-1, -1}
         self.__sensors = {-1, -1, -1, -1}
+        self._lastPos = -1
+        self._curDifference = 0.0
 
     def getId(self):
         return self.__id
@@ -60,8 +64,16 @@ class Dronesim:
 
     def setPosition(self, position):
         if position is not None:
-            self.__position = position
+            if(self._lastPos != -1):
+                difference = float(position[1]) - self._lastPos
+                if(difference > 2.0 or difference < -2.0):
+                    self._curDifference -= difference
+            self._lastPos = float(position[1])
+            newPositions = []
+            newPositions.append(str(float(position[0])*10.0))
+            newPositions.append(str((float(position[1])*10.0) + (self._curDifference * 10.0)))
+            self.__position = newPositions
 
     def setSensors(self, sensors_array):
         if sensors_array is not None:
-            self.__sensors = sensors_array
+            self.__sensors = [str(float(s)/10.0) for s in sensors_array]

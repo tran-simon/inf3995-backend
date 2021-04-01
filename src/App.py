@@ -14,7 +14,7 @@ from StatusDTO import StatusDTO
 droneList = []
 simDroneList = []
 isSim = False
-numberOfDrones = 4
+numberOfDrones = 2
 data = ''
 
 app = Flask(__name__)
@@ -30,7 +30,7 @@ updateDrones(droneList)
 def updateStats():
     if(isSim):
         for drone in simDroneList:
-            buffer = drone.getSocket().recv(1024)
+            buffer = drone.getSocket().recv(64000)
 
             state_array = buffer.decode("utf-8").rsplit('s')
             battery_array = buffer.decode("utf-8").rsplit('b')
