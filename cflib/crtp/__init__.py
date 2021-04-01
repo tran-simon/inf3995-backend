@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 DRIVERS = [RadioDriver, SerialDriver, UdpDriver,
            DebugDriver, UsbDriver, PrrtDriver]
 CLASSES = []
-ADRESSES = [0xE7E7E7E7E7, 0xE7E7E7E701]
+ADRESSES = [0xE7E7E7E701, 0xE7E7E7E702]
 
 
 def init_drivers(enable_debug_driver=False, enable_serial_driver=False):
