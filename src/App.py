@@ -2,8 +2,9 @@ import socket
 import socketserver
 import requests
 import os
+import logging
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 
 from Appchannel import updateDrones
@@ -23,6 +24,24 @@ CORS(app)
 
 # Connection to drones
 updateDrones(droneList)
+
+
+
+# https://code-maven.com/python-flask-logging
+#https://docs.python.org/3/howto/logging-cookbook.html
+@app.before_first_request
+def before_first_request():
+    log_level = logging.INFO
+
+    root = os.path.dirname(os.path.abspath(__file__))
+    log_file = os.path.join(root, 'app.log')
+    handler = logging.FileHandler(log_file)
+    handler.setFormatter( logging.Formatter('%(asctime)s - %(name)s - %(levelname)s: %(message)s'))
+    handler.setLevel(log_level)
+
+    app.logger.addHandler(handler)
+
+    app.logger.setLevel(log_level)
 
 
 # Met a jour le statut des crazyflies. Retourne le statut
@@ -62,6 +81,8 @@ def updateStats():
                 drone.getChannel().sendPacket(b'p')
             except:
                 continue
+
+    app.logger.info("getting stats")
     return getStats()
 
 
@@ -86,6 +107,7 @@ def scan():
     if(isSim):
         connect()
     else:
+        app.logger.info("scanning crazyflies")
         updateDrones(droneList)
     return updateStats()
 
@@ -93,6 +115,7 @@ def scan():
 # Le body contient vrai si le backend est connecté à la simulation
 @app.route('/liveCheck')
 def liveCheck():
+    app.logger.info("liveCheck from " + request.remote_addr + " - simulation: " + str(isSim))
     return jsonify(StatusDTO(isSim).__dict__), 200
 
 
@@ -103,10 +126,11 @@ def takeOff():
         try:
             for drone in simDroneList:
                 drone.getSocket().send(b's')
+            app.logger.info("crazyflie takeOff")
 
             return {'result': True}
-        except:
-            print("Error")
+        except Exception:
+            app.logger.error("Exception during takeoff: " + str(Exception))
             return 'Error', 500
 
     else:
@@ -114,9 +138,10 @@ def takeOff():
             for d in droneList:
                 d.getChannel().sendPacket(b't')
 
+            app.logger.info("simulation takeOff")
             return {'result': True}
         except:
-            print("Error")
+            app.logger.error("Exception during simulation takeoff: " + str(Exception))
             return 'Error', 500
 
 
@@ -128,18 +153,20 @@ def land():
             for drone in simDroneList:
                 drone.getSocket().send(b'l')
 
+            app.logger.info("crazyflie land")
             return {'result': True}
-        except:
-            print("Error")
+        except Exception:
+            app.logger.error("Exception during land: " + str(Exception))
             return 'Error', 500
     else:
         try:
             for d in droneList:
                 d.getChannel().sendPacket(b'l')
 
+            app.logger.info("crazyflie land")
             return {'result': True}
-        except:
-            print("Error")
+        except Exception:
+            app.logger.error("Exception during simulation land: " + str(Exception))
             return 'Error', 500
 
 @app.route("/reset")
@@ -156,6 +183,8 @@ def reset():
         isSim = True
     else:
         isSim = False
+
+    app.logger.info("reseting to simulation=" + str(isSim))
     return jsonify(isSim)
 
 @app.route("/connect")
@@ -166,6 +195,7 @@ def connect():
     socketserver.TCPServer.allow_reuse_address = True
     HOST = '0.0.0.0'  # The server's hostname or IP address
     PORT = 80   # The port used by the server
+    app.logger.info("Connecting to simulation")
     try:
         for d in simDroneList:
             (d.getSocket()).close()
@@ -182,11 +212,19 @@ def connect():
         return data
 
     except socket.error as e:
+        app.logger.error("socket error during connection to simulation: " + str(e))
         s.close()
         return str(e)
 
 
 @app.route("/flash")
 def flash():
-    return requests.get(os.environ.get("SERVER_URL") + "/flash").content
+    req = requests.get(os.environ.get("SERVER_URL") + "/flash")
 
+    app.logger.info("flashing crazyflies: " + req.text)
+    return req.content
+
+
+@app.route("/logs")
+def logs():
+    return send_file('app.log', mimetype='text/plain')
