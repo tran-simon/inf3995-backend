@@ -63,17 +63,23 @@ class Dronesim:
             print("Error: State Not a number: ", state)
 
     def setPosition(self, position):
-        if position is not None:
-            if(self._lastPos != -1):
-                difference = float(position[1]) - self._lastPos
-                if(difference > 2.0 or difference < -2.0):
-                    self._curDifference -= difference
-            self._lastPos = float(position[1])
-            newPositions = []
-            newPositions.append(str(float(position[0])*10.0))
-            newPositions.append(str((float(position[1])*10.0) + (self._curDifference * 10.0)))
-            self.__position = newPositions
+        try:
+            if position is not None and len(position) >= 2:
+                if(self._lastPos != -1):
+                    difference = float(position[1]) - self._lastPos
+                    if(difference > 2.0 or difference < -2.0):
+                        self._curDifference -= difference
+                self._lastPos = float(position[1])
+                newPositions = []
+                newPositions.append(str(float(position[0])*10.0))
+                newPositions.append(str((float(position[1])*10.0) + (self._curDifference * 10.0)))
+                self.__position = newPositions
+        except:
+            print("Error in setPosition: ", position)
 
     def setSensors(self, sensors_array):
-        if sensors_array is not None:
-            self.__sensors = [str(float(s)/10.0) for s in sensors_array]
+        try:
+            if sensors_array is not None:
+                self.__sensors = [str(float(s)/10.0) for s in sensors_array]
+        except:
+            print("Error in setSensors: ", sensors_array)
