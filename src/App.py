@@ -147,13 +147,16 @@ def takeOff():
 
 @app.route("/land")
 def land():
+    packet = b'r' if request.args.get("return") == 'true' else b'l'
+
     if(isSim):
         try:
             global simDroneList
             for drone in simDroneList:
-                drone.getSocket().send(b'l')
+                drone.getSocket().send(packet)
 
             app.logger.info("crazyflie land")
+
             return {'result': True}
         except Exception:
             app.logger.error("Exception during land: " + str(Exception))
@@ -161,7 +164,7 @@ def land():
     else:
         try:
             for d in droneList:
-                d.getChannel().sendPacket(b'l')
+                d.getChannel().sendPacket(packet)
 
             app.logger.info("crazyflie land")
             return {'result': True}

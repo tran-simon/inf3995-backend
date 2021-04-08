@@ -15,8 +15,8 @@ class Dronesim:
         self.__battery = -1
         self.__speed = -1
         self.__state = -1
-        self.__position = {-1, -1}
-        self.__sensors = {-1, -1, -1, -1}
+        self.__position = [-1, -1]
+        self.__sensors = [-1, -1, -1, -1]
         self._lastPos = -1
         self._curDifference = 0.0
 
