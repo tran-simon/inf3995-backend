@@ -95,16 +95,20 @@ class AppchannelCommunicate:
         (value, infoType) = struct.unpack("<fc", data)
 
         if(infoType == b'b'):
-            self.setBattery(value)
+            batPercentage = vbatToPourcentage(value)
+            self.setBattery(batPercentage)
 
         elif(infoType == b'v'):
-            self.setSpeed(value)
+            #self.setSpeed(value)
+            print("Tes")
 
         elif(infoType == b's'):
             self.setState(value)
 
+        # A changer*******
         elif(infoType == b'p'):
-            self.__speed = value
+            self.setSpeed(value)
+            print(value)
 
     def sendPacket(self, value):
         data = struct.pack("<c", value)
@@ -136,6 +140,53 @@ class AppchannelCommunicate:
     
     def setState(self, value):
         self.__state = value
+        
+        
+
+
+def vbatToPourcentage(voltage):
+        if 4.2 >= voltage > 4.15:
+            return 100
+        if 4.15 >= voltage > 4.11:
+            return 95
+        if 4.11 >= voltage > 4.08:
+            return 90
+        if 4.08 >= voltage > 4.02:
+            return 85
+        if 4.02 >= voltage > 3.98:
+            return 80
+        if 3.98 >= voltage > 3.95:
+            return 75
+        if 3.95 >= voltage > 3.91:
+            return 70
+        if 3.91 >= voltage > 3.87:
+            return 65
+        if 3.87 >= voltage > 3.85:
+            return 60
+        if 3.85 >= voltage > 3.84:
+            return 55
+        if 3.84 >= voltage > 3.82:
+            return 50
+        if 3.82 >= voltage > 3.8:
+            return 45
+        if 3.8 >= voltage > 3.79:
+            return 40
+        if 3.79 >= voltage > 3.77:
+            return 35
+        if 3.77 >= voltage > 3.75:
+            return 30
+        if 3.75 >= voltage > 3.73:
+            return 25
+        if 3.73 >= voltage > 3.71:
+            return 20
+        if 3.71 >= voltage > 3.69:
+            return 15
+        if 3.69 >= voltage > 3.61:
+            return 10
+        if 3.61 >= voltage > 3.27:
+            return 5
+        if voltage < 3.27:
+            return 0
 
 
 
