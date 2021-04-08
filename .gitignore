@@ -6,4 +6,6 @@ venv/
 **/*.env
 **/*.iml
 
+*.log
+
 out/
