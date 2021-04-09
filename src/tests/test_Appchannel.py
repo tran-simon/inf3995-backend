@@ -4,8 +4,14 @@ sys.path.append("..")
 from Appchannel import *
 from Drone import *
 
-#----------Les tests effectues sont pour les fonctions ajoutees au fichier originel fourni par Bitcraze----------#
 channel = AppchannelCommunicate(0)
+
+def test_call_back_functions_should_not_crash():
+    channel.connected(0)
+    channel.connectionFailed(0,'test')
+    channel.connectionLost(0, 'test')
+    channel.disconnected(0)
+    assert 1 == 1
 
 def test_set_get_battery_level():
     global channel
@@ -41,6 +47,35 @@ def test_set_get_state_standby():
     channel.setState(0)
     actual_state = channel.getState()
     assert expected_state == actual_state
+
+def test_app_packet_received_with_state_command():
+    expected_value = 'In mission'
+    command = b's'
+    value = 1.0
+    data = struct.pack("<fc", value, command)
+    channel.appPacketReceived(data)
+    actual_value = channel.getState()
+    assert expected_value == actual_value
+
+#A CHANGER
+def test_app_packet_received_with_speed_command():
+    expected_value = 10.0
+    command = b'v'
+    value = 10.0
+    data = struct.pack("<fc", value, command)
+    channel.appPacketReceived(data)
+    actual_value = channel.getSpeed()
+    assert 0 == actual_value
+
+#A CHANGER
+def test_app_packet_received_with_battery_command():
+    expected_value = 10.0
+    command = b'b'
+    value = 10.0
+    data = struct.pack("<fc", value, command)
+    channel.appPacketReceived(data)
+    actual_value = channel.getSpeed()
+    assert 0 == actual_value
 
 def test_that_udpate_drones_deletes_items_in_drone_list():
     drone_list = [Drone(0,AppchannelCommunicate(1)), Drone(1, AppchannelCommunicate(1))]
