@@ -1,5 +1,4 @@
 import pytest
-#from pytest-mock import mocker
 import sys
 sys.path.append("..")
 from Appchannel import *
