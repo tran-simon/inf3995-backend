@@ -92,23 +92,32 @@ class AppchannelCommunicate:
 
 
     def appPacketReceived(self, data):
-        (value, infoType) = struct.unpack("<fc", data)
+        (value1, value2, value3, value4, value5, value6, infoType) = struct.unpack("<ffffffc", data)
 
         if(infoType == b'b'):
-            batPercentage = vbatToPourcentage(value)
+            batPercentage = vbatToPourcentage(value1)
             self.setBattery(batPercentage)
 
         elif(infoType == b'v'):
             #self.setSpeed(value)
-            print("Tes")
+            print("Test")
 
         elif(infoType == b's'):
-            self.setState(value)
+            self.setState(value1)
 
         # A changer*******
         elif(infoType == b'p'):
-            self.setSpeed(value)
-            print(value)
+            self.setSpeed(value1)
+            print(value1)
+
+        elif(infoType == b'm'):
+            print("x value is: ",value1)
+            print("y value is: ", value2)
+            print("front distance value is: ", value3)
+            print("back distance value is: ", value4)
+            print("left distance value is: ", value5)
+            print("right distance value is: ", value6)
+
 
     def sendPacket(self, value):
         data = struct.pack("<c", value)
