@@ -54,7 +54,8 @@ class AppchannelCommunicate:
     __batteryLevel = 0.0
     __speed = 0.0
     __state = 0.0
-    __cfData = [{-1, -1}, {-1, -1, -1, -1}]
+    __position_array = [-1, -1]
+    __sensor_array = [-1, -1, -1, -1]
 
     def __init__(self, link_uri):
         """ Initialize and run the example with the specified link_uri """
@@ -118,8 +119,10 @@ class AppchannelCommunicate:
             print("back distance value is: ", value4)
             print("left distance value is: ", value5)
             print("right distance value is: ", value6)
-            data = [{value1, value2}, {value3, value4, value5, value6}]
-            self.setCfData(data)
+            position_array = [str(value2*-10.0), str(value1*-10.0)]
+            sensor_array = [str(value4/10.0), str(value3/10.0), str(value6/10.0), str(value5/10.0)]
+            self.setPositonArray(position_array)
+            self.setSensorArray(sensor_array)
 
 
 
@@ -145,8 +148,11 @@ class AppchannelCommunicate:
         else:
             return "Standby"
 
-    def getCfData(self):
-        return self.__cfData
+    def getPositionArray(self):
+        return self.__position_array
+
+    def getSensorArray(self):
+        return self.__sensor_array
 
     def setBattery(self, value):
         self.__batteryLevel = value
@@ -157,8 +163,11 @@ class AppchannelCommunicate:
     def setState(self, value):
         self.__state = value
 
-    def setCfData(self, value):
-        self.__cfData = value
+    def setPositonArray(self, value):
+        self.__position_array = value
+    
+    def setSensorArray(self, value):
+        self.__sensor_array = value
         
         
 
