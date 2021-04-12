@@ -101,16 +101,10 @@ class AppchannelCommunicate:
             self.setBattery(batPercentage)
 
         elif(infoType == b'v'):
-            #self.setSpeed(value)
-            print("Test")
+            self.setSpeed(value1)
 
         elif(infoType == b's'):
             self.setState(value1)
-
-        # A changer*******
-        elif(infoType == b'p'):
-            self.setSpeed(value1)
-            print(value1)
 
         elif(infoType == b'm'):
             print("x value is: ",value1)
