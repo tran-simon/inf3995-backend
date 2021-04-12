@@ -54,6 +54,7 @@ class AppchannelCommunicate:
     __batteryLevel = 0.0
     __speed = 0.0
     __state = 0.0
+    __cfData = [{-1, -1}, {-1, -1, -1, -1}]
 
     def __init__(self, link_uri):
         """ Initialize and run the example with the specified link_uri """
@@ -117,6 +118,9 @@ class AppchannelCommunicate:
             print("back distance value is: ", value4)
             print("left distance value is: ", value5)
             print("right distance value is: ", value6)
+            data = [{value1, value2}, {value3, value4, value5, value6}]
+            self.setCfData(data)
+
 
 
     def sendPacket(self, value):
@@ -141,6 +145,9 @@ class AppchannelCommunicate:
         else:
             return "Standby"
 
+    def getCfData(self):
+        return self.__cfData
+
     def setBattery(self, value):
         self.__batteryLevel = value
 
@@ -149,6 +156,9 @@ class AppchannelCommunicate:
     
     def setState(self, value):
         self.__state = value
+
+    def setCfData(self, value):
+        self.__cfData = value
         
         
 

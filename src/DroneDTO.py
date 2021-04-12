@@ -32,4 +32,5 @@ class DroneDTO:
             self.battery = drone.getChannel().getBatteryLevel()
             self.speed = drone.getChannel().getSpeed()
             self.state = drone.getChannel().getState()
+            self.cfData = drone.getChannel().getCfData()
 
