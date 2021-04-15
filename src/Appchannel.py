@@ -146,8 +146,10 @@ class AppchannelCommunicate:
             return self.__speed
 
     def getState(self):
-        if(self.__state > 0.0):
+        if(self.__state == 1.0):
             return "In mission"
+        elif(self.__state == 2.0):
+            return "Crashed"
         else:
             return "Standby"
 
