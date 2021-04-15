@@ -133,11 +133,11 @@ def takeOff():
         try:
             for drone in simDroneList:
                 drone.getSocket().send(b's')
-            app.logger.info("crazyflie takeOff")
+            app.logger.info("simulation takeOff")
 
             return {'result': True}
         except Exception:
-            app.logger.error("Exception during takeoff: " + str(Exception))
+            app.logger.error("Exception during simulation takeoff: " + str(Exception))
             return 'Error', 500
 
     else:
@@ -145,10 +145,10 @@ def takeOff():
             for d in droneList:
                 d.getChannel().sendPacket(b't')
 
-            app.logger.info("simulation takeOff")
+            app.logger.info("crazyflie takeOff")
             return {'result': True}
         except:
-            app.logger.error("Exception during simulation takeoff: " + str(Exception))
+            app.logger.error("Exception during takeoff: " + str(Exception))
             return 'Error', 500
 
 
