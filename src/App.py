@@ -85,7 +85,6 @@ def updateStats():
             except:
                 continue
 
-    app.logger.info("getting stats")
     return getStats()
 
 
@@ -195,7 +194,7 @@ def reset():
     else:
         isSim = False
 
-    app.logger.info("reseting to simulation=" + str(isSim))
+    app.logger.info("resetting to simulation=" + str(isSim))
     return jsonify(isSim)
 
 @app.route("/connect")
