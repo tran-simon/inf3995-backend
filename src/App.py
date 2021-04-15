@@ -12,6 +12,7 @@ from DroneDTO import DroneDTO
 from Dronesim import Dronesim
 from StatusDTO import StatusDTO
 
+initialPositionList = []
 droneList = []
 simDroneList = []
 isSim = False
@@ -121,9 +122,14 @@ def liveCheck():
     return jsonify(StatusDTO(isSim).__dict__), 200
 
 
-@app.route("/takeOff")
+@app.route("/takeOff", methods = ['POST', 'GET'])
 def takeOff():
     global simDroneList
+    global initialPositionList
+
+    if request.method == 'POST':
+        initialPositionList = request.json
+
     if(isSim):
         try:
             for drone in simDroneList:
