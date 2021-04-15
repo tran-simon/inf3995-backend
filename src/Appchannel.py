@@ -121,11 +121,20 @@ class AppchannelCommunicate:
 
 
     def sendPacket(self, value):
-        data = struct.pack("<c", value)
+        value2 = b'5'
+        value3 = b'5'
+        data = struct.pack("<ccc", value, value2, value3)
+        print("cancer")
         self._cf.appchannel.send_packet(data)
         print(f"Sent command: {value}")
-
         time.sleep(0.01)
+
+    def sendPosition(self, value, value2, value3):
+        data = struct.pack("<ccc", value, value2, value3)
+        self._cf.appchannel.send_packet(data)
+        print(f"Sent command: {value}")
+        time.sleep(0.01)
+
 
     def getBatteryLevel(self):
         return self.__batteryLevel
