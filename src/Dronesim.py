@@ -1,3 +1,4 @@
+"""Simulation Drone class"""
 class Dronesim:
     __id = ""
     __socket = None

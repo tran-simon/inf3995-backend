@@ -24,16 +24,12 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA  02110-1301, USA.
 """
-Simple example that connects to the first Crazyflie found, Sends and
-receive appchannel packets
+File containing information needed to communicate continuously with a crazyflie
 """
-
 import logging
 import time
 from threading import Thread
-
 import struct
-
 import cflib
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.mem import MemoryElement, I2CElement
@@ -45,8 +41,6 @@ STATE_CRASHED = "Crashed"
 
 logging.basicConfig(level=logging.ERROR)
 cflib.crtp.init_drivers(enable_debug_driver=False)
-
-
 
 class AppchannelCommunicate:
     """Example that connects to a Crazyflie and ramps the motors up/down and
@@ -92,8 +86,9 @@ class AppchannelCommunicate:
         """Callback when the Crazyflie is disconnected (called in all cases)"""
         print('Disconnected from %s' % link_uri)
 
-
+    
     def appPacketReceived(self, data):
+        """Reception handler called when paquet from drone arrives"""
         (value1, value2, value3, value4, value5, value6, infoType) = struct.unpack("<ffffffc", data)
 
         if(infoType == b'b'):
@@ -107,34 +102,17 @@ class AppchannelCommunicate:
             self.setState(value1)
 
         elif(infoType == b'm'):
-            print("x value is: ",value1)
-            print("y value is: ", value2)
-            print("front distance value is: ", value3)
-            print("back distance value is: ", value4)
-            print("left distance value is: ", value5)
-            print("right distance value is: ", value6)
             position_array = [str(value2*-10.0), str(value1*-10.0)]
             sensor_array = [str(value4/10.0), str(value3/10.0), str(value6/10.0), str(value5/10.0)]
             self.setPositonArray(position_array)
             self.setSensorArray(sensor_array)
 
-
-
     def sendPacket(self, value):
-        value2 = b'5'
-        value3 = b'5'
-        data = struct.pack("<ccc", value, value2, value3)
-        print("cancer")
+        """Sends paquets with value passed in param to the"""
+        data = struct.pack("<c", value)
         self._cf.appchannel.send_packet(data)
         print(f"Sent command: {value}")
         time.sleep(0.01)
-
-    def sendPosition(self, value, value2, value3):
-        data = struct.pack("<ccc", value, value2, value3)
-        self._cf.appchannel.send_packet(data)
-        print(f"Sent command: {value}")
-        time.sleep(0.01)
-
 
     def getBatteryLevel(self):
         return self.__batteryLevel
@@ -174,56 +152,54 @@ class AppchannelCommunicate:
     def setSensorArray(self, value):
         self.__sensor_array = value
         
-        
-
-
 def vbatToPourcentage(voltage):
-        if 4.2 >= voltage > 4.15:
-            return 100
-        if 4.15 >= voltage > 4.11:
-            return 95
-        if 4.11 >= voltage > 4.08:
-            return 90
-        if 4.08 >= voltage > 4.02:
-            return 85
-        if 4.02 >= voltage > 3.98:
-            return 80
-        if 3.98 >= voltage > 3.95:
-            return 75
-        if 3.95 >= voltage > 3.91:
-            return 70
-        if 3.91 >= voltage > 3.87:
-            return 65
-        if 3.87 >= voltage > 3.85:
-            return 60
-        if 3.85 >= voltage > 3.84:
-            return 55
-        if 3.84 >= voltage > 3.82:
-            return 50
-        if 3.82 >= voltage > 3.8:
-            return 45
-        if 3.8 >= voltage > 3.79:
-            return 40
-        if 3.79 >= voltage > 3.77:
-            return 35
-        if 3.77 >= voltage > 3.75:
-            return 30
-        if 3.75 >= voltage > 3.73:
-            return 25
-        if 3.73 >= voltage > 3.71:
-            return 20
-        if 3.71 >= voltage > 3.69:
-            return 15
-        if 3.69 >= voltage > 3.61:
-            return 10
-        if 3.61 >= voltage > 3.27:
-            return 5
-        if voltage < 3.27:
-            return 0
-
-
+    """Conversion to pourcentage depending on the voltage value received (values based on 1S battery)"""
+    # https://blog.ampow.com/lipo-voltage-chart/
+    if 4.2 >= voltage > 4.15:
+        return 100
+    if 4.15 >= voltage > 4.11:
+        return 95
+    if 4.11 >= voltage > 4.08:
+        return 90
+    if 4.08 >= voltage > 4.02:
+        return 85
+    if 4.02 >= voltage > 3.98:
+        return 80
+    if 3.98 >= voltage > 3.95:
+        return 75
+    if 3.95 >= voltage > 3.91:
+        return 70
+    if 3.91 >= voltage > 3.87:
+        return 65
+    if 3.87 >= voltage > 3.85:
+        return 60
+    if 3.85 >= voltage > 3.84:
+        return 55
+    if 3.84 >= voltage > 3.82:
+        return 50
+    if 3.82 >= voltage > 3.8:
+        return 45
+    if 3.8 >= voltage > 3.79:
+        return 40
+    if 3.79 >= voltage > 3.77:
+        return 35
+    if 3.77 >= voltage > 3.75:
+        return 30
+    if 3.75 >= voltage > 3.73:
+        return 25
+    if 3.73 >= voltage > 3.71:
+        return 20
+    if 3.71 >= voltage > 3.69:
+        return 15
+    if 3.69 >= voltage > 3.61:
+        return 10
+    if 3.61 >= voltage > 3.27:
+        return 5
+    if voltage < 3.27:
+        return 0
 
 def connectToDrone():
+    """Tries to connect to crazyflie drones"""
     print('Scanning interfaces for Crazyflies...')
     available = cflib.crtp.scan_interfaces()
     if len(available) > 0:
@@ -232,23 +208,13 @@ def connectToDrone():
         print('No Crazyflies found')
     return available
 
-
 def updateDrones(droneList):
+    """Adds connected drones to the droneList"""
     drones = []
     for i in droneList:
         i.destroy()
     del droneList[:]
-    drones = connectToDrone() #Returns amount of drones 
-    print(drones)
-
-    #if(len(drones) > 0):
-            #for i in drones:
-                #drone = Drone(drones[i], AppchannelCommunicate(drones[i]))
-                #droneList.append(drone)
-   # else:
-        #drone = Drone(drones[0], AppchannelCommunicate(drones[0]))
-        #droneList.append(drone)
-
+    drones = connectToDrone() 
     for d in drones:
         drone = Drone(d[0], AppchannelCommunicate(d[0]))
         if(len(droneList) > 0):
@@ -256,4 +222,3 @@ def updateDrones(droneList):
                 droneList.append(drone)
         else:
             droneList.append(drone)
-

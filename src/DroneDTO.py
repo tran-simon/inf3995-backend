@@ -1,7 +1,6 @@
+"""Drone Data Transfert Object allowing other processess to acces Drone information"""
 from Drone import Drone
 from Dronesim import Dronesim
-
-
 
 class DroneDTO:
     droneId = ''
@@ -16,7 +15,6 @@ class DroneDTO:
             self.battery = drone.getBattery()
             self.speed = drone.getSpeed()
             self.cfData = [drone.getPosition(), drone.getSensors()]
-
             switcher = {
                 -1 : "No State Received",
                 0 : "Standby",
@@ -26,7 +24,6 @@ class DroneDTO:
                 4 : "Standby"
             }
             self.state = switcher.get(drone.getState())
-
         else:
             self.droneId = drone.getId()
             self.battery = drone.getChannel().getBatteryLevel()
