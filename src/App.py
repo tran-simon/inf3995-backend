@@ -73,7 +73,6 @@ def updateStats():
                 drone.getChannel().sendPacket(b'b')
                 drone.getChannel().sendPacket(b'v')
                 drone.getChannel().sendPacket(b's')
-                drone.getChannel().sendPacket(b'p')
                 drone.getChannel().sendPacket(b'm')
             except:
                 continue
