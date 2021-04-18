@@ -16,7 +16,7 @@ initialPositionList = []
 droneList = []
 simDroneList = []
 isSim = False
-numberOfDrones = 2
+numberOfDrones = 4
 data = ''
 
 app = Flask(__name__)
