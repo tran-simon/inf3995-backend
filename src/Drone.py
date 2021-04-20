@@ -1,3 +1,4 @@
+"""Crazyflie Drone class"""
 class Drone:
     __id = ""
     __channel = ""
